@@ -1,0 +1,37 @@
+[theme]
+base = "light"
+primaryColor = "#0E5A3A"
+backgroundColor = "#F7F5F0"
+secondaryBackgroundColor = "#FFFDF8"
+textColor = "#1D241F"
+font = "sans serif"
+baseFontSize = 15
+baseRadius = "0.75rem"
+borderColor = "#E5E1D7"
+linkColor = "#0E5A3A"
+headingFont = "Inter"
+bodyFont = "Inter"
+codeFont = "monospace"
+showWidgetBorder = true
+dataframeBorderColor = "#E5E1D7"
+dataframeHeaderBackgroundColor = "#F3F0E8"
+chartCategoricalColors = [
+    "#0E5A3A",
+    "#8F2437",
+    "#A96A1E",
+    "#6B7A6F",
+    "#B9C9B7",
+    "#5C4B51",
+]
+
+[server]
+headless = true
+port = 8501
+enableXsrfProtection = true
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = true
+
+[browser]
+gatherUsageStats = false

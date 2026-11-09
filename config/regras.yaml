@@ -1,0 +1,17 @@
+# Base de regras e premissas do SAD de descontos - Adega Bom Sabor
+# Editável pela interface (página "Regras e premissas") ou direto neste arquivo.
+faixas_margem:
+  baixa_ate: 35      # margem < 35%  -> Baixa
+  alta_acima: 42     # margem > 42%  -> Alta ; entre os dois -> Média
+teto_padrao: 10      # usado quando nenhuma regra se aplica
+queda_max_receita: 5 # % de queda de receita aceita pelo gestor
+premissas_perda_volume:   # % de volume perdido se o desconto for retirado por completo
+  Alta: 25
+  Média: 10
+  Baixa: 0
+regras:
+  - {id: R1, nome: "Cliente com sensibilidade a preço baixa", campo: sensibilidade_preco, valor: Baixa, teto: 0,  tipo: comum, ativa: true}
+  - {id: R2, nome: "Produto com margem baixa (< 35%)",        campo: faixa_margem,        valor: Baixa, teto: 5,  tipo: comum, ativa: true}
+  - {id: R3, nome: "Cliente com sensibilidade a preço alta",  campo: sensibilidade_preco, valor: Alta,  teto: 15, tipo: comum, ativa: true}
+  - {id: R4, nome: "Produto com estoque acima do máximo (girar estoque)", campo: situacao_estoque, valor: Excesso,        teto: 20, tipo: prioritaria, ativa: true}
+  - {id: R5, nome: "Produto com estoque abaixo do mínimo",    campo: situacao_estoque,    valor: "Abaixo do mínimo", teto: 0,  tipo: prioritaria, ativa: true}
