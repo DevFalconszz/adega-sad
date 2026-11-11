@@ -36,6 +36,7 @@ from ui import (
 df = get_df()
 cfg = get_cfg()
 regras = cfg.get("regras", [])
+ativas = sum(1 for r in regras if r.get("ativa", True))
 padrao = carregar_config()
 alterado = config_para_yaml(cfg) != config_para_yaml(padrao)
 
@@ -43,7 +44,7 @@ page_header(
     kicker="03 · Conhecimento",
     title="Regras e premissas",
     subtitle="As condições SE → ENTÃO, os limites e as premissas que transformam estratégia em teto de desconto.",
-    meta=[("Regras", f"{len(regras)} ativas"), ("Teto padrão", pct(cfg.get("teto_padrao", 0), 0))],
+    meta=[("Regras", f"{ativas} ativas"), ("Teto padrão", pct(cfg.get("teto_padrao", 0), 0))],
 )
 
 
@@ -78,7 +79,6 @@ with ac3:
             _resetar()
 
 # ---------------------------------------------------------------- KPIs
-ativas = sum(1 for r in regras if r.get("ativa", True))
 comuns = sum(1 for r in regras if r.get("tipo") == "comum")
 prioritarias = sum(1 for r in regras if r.get("tipo") == "prioritaria")
 
