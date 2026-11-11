@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from sad.diagnostico import desconto_por, indicadores
+from sad.simulation import resumo
 from ui import (
     AMBAR,
     GREEN,
@@ -16,12 +17,14 @@ from ui import (
     card_head,
     eixo_meses,
     get_df,
+    get_recomendacao,
     insight,
     mes_ano,
     metric,
     num,
     page_header,
     pct,
+    policy_hero,
     section,
     show_fig,
     stat_strip,
@@ -39,9 +42,43 @@ n = len(df)
 page_header(
     kicker="01 · Painel executivo",
     title="Visão geral",
-    subtitle="O retrato financeiro da política de descontos atual — e onde o lucro está sendo gasto.",
+    subtitle="O retrato financeiro da política atual — e a melhor política de desconto que o sistema recomenda.",
     meta=[("Base", f"{num(n)} vendas"), ("Período", periodo)],
 )
+
+# ---------------------------------------------------------------- melhor política
+rec = get_recomendacao()
+base = resumo(df)
+novo = resumo(df, rec["sim"])
+d_lucro = novo["lucro"] - base["lucro"]
+d_receita = novo["receita"] - base["receita"]
+d_desconto = novo["abatido"] - base["abatido"]
+dist = rec["tabela"]["teto_recomendado_%"].value_counts().sort_index()
+tetos_txt = " · ".join(f"{int(v)}× {int(t)}%" for t, v in dist.items())
+sinal = "+" if d_lucro >= 0 else "−"
+
+policy_hero(
+    brl(novo["lucro"]),
+    f"<strong>{sinal}{brl(abs(d_lucro))} ({pct(d_lucro / base['lucro'] * 100, 1, True)})</strong> "
+    f"de lucro sobre a política atual, com <strong>{pct(abs(d_desconto) / base['abatido'] * 100, 1)} "
+    "menos desconto</strong> concedido.",
+    [
+        ("Receita", pct(d_receita / base["receita"] * 100, 1, True)),
+        ("Desconto", pct(d_desconto / base["abatido"] * 100, 1, True)),
+        ("Tetos", tetos_txt),
+    ],
+    "Calculada sobre as <b>7.522 vendas</b> com as <b>5 regras ativas</b> — inclusive as regras de estoque. "
+    "Ganho projetado pelo modelo, a validar em piloto.",
+)
+
+acao, nota = st.columns([1.05, 3.95], vertical_alignment="center")
+with acao:
+    if st.button("Ver a política por segmento", type="primary", use_container_width=True):
+        st.switch_page("pages/5_recomendacao.py")
+with nota:
+    st.caption("A recomendação se atualiza sempre que as regras ou as premissas mudam.")
+
+section("O ponto de partida", "A política atual, antes da recomendação")
 
 # ---------------------------------------------------------------- indicadores
 ticket = k["receita"] / n if n else 0

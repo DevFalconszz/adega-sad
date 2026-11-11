@@ -27,7 +27,7 @@ paginas = [
     st.Page("pages/2_evidencias.py", title="Evidências"),
     st.Page("pages/3_regras_premissas.py", title="Regras"),
     st.Page("pages/4_simulacao.py", title="Simulador"),
-    st.Page("pages/5_recomendacao.py", title="Otimização"),
+    st.Page("pages/5_recomendacao.py", title="Melhor política"),
 ]
 
 st.logo("assets/marca.svg", size="large")

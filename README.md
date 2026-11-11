@@ -52,10 +52,13 @@ O sistema transforma esse diagnóstico em uma política acionável:
 
 ```text
 ENTRADA                 PROCESSAMENTO                              RESULTADO
-regras + premissas  →   inferência + simulação what-if +            política por segmento,
-+ restrição de          otimização com restrição de receita          impacto em lucro e receita,
-  receita                                                          exportável em CSV e YAML
+regras + premissas  →   inferência + simulação what-if +            melhor política por
++ restrição de          otimização com restrição de receita          segmento, impacto em
+  receita                                                           lucro e receita,
+                                                                    exportável em CSV e YAML
 ```
+
+> 🎯 **O ponto do sistema é a melhor política.** Ela aparece já calculada na abertura da Visão geral e abre a página **Melhor política**: **+R$ 34.502 de lucro (+8,7%)**, **79% menos desconto concedido** e **19 dos 27 segmentos com teto 0%** — sempre respeitando as regras de negócio e a restrição de receita. O restante do sistema existe para sustentar essa resposta: diagnóstico, evidência, regras e simulação.
 
 > 💡 **Diferencial**: as regras de negócio são **dados editáveis** (YAML), não código. O gestor altera tetos e premissas na interface, vê o impacto em tempo real e exporta a política recomendada para aplicação em produção.
 
@@ -63,7 +66,7 @@ regras + premissas  →   inferência + simulação what-if +            políti
 
 ## 🖼️ Interface
 
-A interface foi desenhada para ser silenciosa e editorial: fundo em papel quente, cartões claros, hairlines, tipografia serifada nos títulos e apenas dois acentos de marca — **verde-garrafa** e **vinho**. Sem sidebar, sem gradientes e sem emojis: a navegação fica no topo e o conteúdo ocupa a página inteira.
+A interface foi desenhada para ser silenciosa e editorial: fundo em papel quente, cartões claros, hairlines, tipografia serifada nos títulos e apenas dois acentos de marca — **verde-garrafa** e **vinho**. Sem sidebar e sem ruído: a navegação fica no topo, o conteúdo ocupa a página inteira e uma única faixa verde-garrafa destaca **a melhor política** logo na entrada.
 
 <table>
   <tr>
@@ -75,7 +78,7 @@ A interface foi desenhada para ser silenciosa e editorial: fundo em papel quente
     <td width="50%"><img src="docs/screenshots/simulador.png" alt="Simulador what-if" /></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="docs/screenshots/otimizacao.png" alt="Otimização da política" /></td>
+    <td colspan="2"><img src="docs/screenshots/melhor-politica.png" alt="Melhor política de desconto" /></td>
   </tr>
 </table>
 
@@ -96,6 +99,7 @@ A interface foi desenhada para ser silenciosa e editorial: fundo em papel quente
 ## ✨ Funcionalidades
 
 ### 📊 Visão geral
+- **Faixa "A melhor política" na abertura**: lucro, ganho, desconto e distribuição dos tetos, com atalho para a política por segmento
 - Indicadores do baseline: receita, lucro bruto, desconto abatido e peso no lucro
 - Desconto por perfil de cliente e participação por canal
 - Evolução mensal de lucro e desconto
@@ -121,7 +125,9 @@ A interface foi desenhada para ser silenciosa e editorial: fundo em papel quente
 - Resultado imediato em lucro, receita, desconto e volume esperado
 - Gráficos de lucro mensal e lucro por perfil
 
-### 🎯 Otimização
+### 🎯 Melhor política
+- A recomendação é calculada **na abertura da página**, sem depender de um clique
+- Recalculada automaticamente quando regras, premissas ou faixas de margem mudam
 - Testa cada teto (**0, 5, 10, 15 e 20%**) em cada um dos **27 segmentos**
 - Escolhe a política de maior lucro dentro da restrição de queda de receita
 - Aplica automaticamente as regras de estoque e prioridade
@@ -230,7 +236,7 @@ O otimizador percorre os **27 segmentos** e, para cada um, testa os tetos **0/5/
 | Quantidade média com desconto | **1,91 un.** |
 | Quantidade média sem desconto | **1,89 un.** |
 
-### Política recomendada
+### A melhor política
 
 | Indicador | Resultado |
 |---|---:|
@@ -239,7 +245,9 @@ O otimizador percorre os **27 segmentos** e, para cada um, testa os tetos **0/5/
 | Receita esperada | **R$ 1.157.785 (+1,0%)** |
 | Desconto abatido | **R$ 12.820** |
 | Desconto evitado | **−R$ 48.209 (−79,0%)** |
-| Retorno por real de desconto evitado | **0,7×** |
+| Segmentos com teto 0% | **19 de 27** |
+| Segmentos com teto 5% | **8 de 27** |
+| Retorno por real de desconto evitado | **0,72×** |
 
 > Os números são reproduzidos pelos testes automatizados e podem variar levemente se as regras ou premissas forem editadas.
 
@@ -256,7 +264,7 @@ adega_sad/
 │   ├── 2_evidencias.py           # testes estatísticos e qualidade da base
 │   ├── 3_regras_premissas.py     # regras, edição, premissas e impacto
 │   ├── 4_simulacao.py            # simulador what-if
-│   └── 5_recomendacao.py         # otimização, tabela e exports
+│   └── 5_recomendacao.py         # melhor política, tabela e exports
 ├── sad/
 │   ├── data.py                   # leitura da planilha e qualidade
 │   ├── features.py               # integração, colunas derivadas e segmentos
@@ -378,11 +386,11 @@ Cobertura atual:
 
 | Passo | Página | O que fazer |
 |---:|---|---|
-| **1** | **Visão geral** | Entenda o tamanho do problema: quanto de lucro o desconto consome. |
+| **1** | **Visão geral** | Comece pela faixa **A melhor política**: o resultado do sistema já aparece aqui. Abaixo, entenda o tamanho do problema. |
 | **2** | **Evidências** | Confira se o desconto aumenta volume de forma estatisticamente significativa. |
 | **3** | **Regras e premissas** | Ajuste tetos, faixas de margem e perda de volume. Ative o **Modo de edição**, aplique e exporte o YAML. |
 | **4** | **Simulador** | Teste cenários de teto uniforme ou as regras configuradas, em tempo real. |
-| **5** | **Otimização** | Rode a otimização e baixe a política recomendada em CSV (por segmento) ou YAML (regras + tetos). |
+| **5** | **Melhor política** | A política já vem calculada. Recalcule após mover parâmetros e baixe em CSV (por segmento) ou YAML (regras + tetos). |
 
 As alterações de regras e premissas valem para toda a aplicação durante a sessão. O resultado da otimização é recalculado automaticamente quando a configuração muda.
 

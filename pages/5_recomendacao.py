@@ -34,14 +34,17 @@ cfg_base = get_cfg()
 
 page_header(
     kicker="05 · Recomendação",
-    title="Otimização",
-    subtitle="O algoritmo testa cada teto em cada um dos 27 segmentos e devolve a política de maior lucro dentro da restrição de receita.",
+    title="Melhor política",
+    subtitle="O otimizador testa cada teto em cada um dos 27 segmentos e devolve a melhor política de desconto dentro das regras e da restrição de receita.",
     meta=[("Segmentos", "27"), ("Tetos", "0 · 5 · 10 · 15 · 20%")],
 )
 
 # ---------------------------------------------------------------- parâmetros
-with st.container(border=True):
-    card_head("Parâmetros da otimização", "a política recomendada respeita estes limites")
+with st.expander("Ajustar parâmetros da otimização", expanded=False):
+    st.caption(
+        "A melhor política abaixo já considera estes limites. Recalcule depois de mover os controles. "
+        "As regras ativas e as faixas de margem da página Regras entram automaticamente."
+    )
 
     q1, q2, q3, q4 = st.columns(4)
     with q1:
@@ -71,10 +74,10 @@ with st.container(border=True):
 
     acao, nota = st.columns([1, 3.4], vertical_alignment="center")
     with acao:
-        rodar = st.button("Otimizar política", type="primary", use_container_width=True)
+        rodar = st.button("Recalcular política", type="primary", use_container_width=True)
     with nota:
         st.caption(
-            "As regras ativas e as faixas de margem da página Regras entram na otimização."
+            "O resultado é recalculado com os valores acima. Nenhum parâmetro é gravado em disco."
         )
 
 cfg_exec = copy.deepcopy(cfg_base)
@@ -85,6 +88,23 @@ cfg_exec["premissas_perda_volume"] = {
     "Baixa": int(perda_baixa),
 }
 
+# A melhor política é calculada na abertura da página — e recalculada
+# automaticamente quando regras, faixas de margem ou premissas mudam.
+assinatura_base = config_para_yaml(cfg_base)
+if (
+    "opt_resultado" not in st.session_state
+    or st.session_state.get("opt_assinatura_base") != assinatura_base
+):
+    if not rodar:
+        with st.spinner("Calculando a melhor política…"):
+            st.session_state["opt_resultado"] = _otimizar_cache(
+                config_para_yaml(cfg_exec),
+                cfg_exec["faixas_margem"]["baixa_ate"],
+                cfg_exec["faixas_margem"]["alta_acima"],
+            )
+        st.session_state["opt_cfg"] = copy.deepcopy(cfg_exec)
+        st.session_state["opt_assinatura_base"] = assinatura_base
+
 if rodar:
     with st.spinner("Avaliando tetos nos 27 segmentos…"):
         resultado = _otimizar_cache(
@@ -94,6 +114,7 @@ if rodar:
         )
     st.session_state["opt_resultado"] = resultado
     st.session_state["opt_cfg"] = copy.deepcopy(cfg_exec)
+    st.session_state["opt_assinatura_base"] = assinatura_base
 
 resultado = st.session_state.get("opt_resultado")
 cfg_resultado = st.session_state.get("opt_cfg", cfg_exec)
@@ -143,10 +164,22 @@ else:
     if alterado:
         st.caption("Os parâmetros mudaram desde a última execução. Rode a otimização novamente para atualizar a política.")
 
+    ajustes_n = len(resultado["ajustes"])
+    ajustes_txt = (
+        "nenhum ajuste pela restrição"
+        if ajustes_n == 0
+        else f"{ajustes_n} ajuste{'s' if ajustes_n > 1 else ''} pela restrição"
+    )
+
     section(
-        "Política recomendada",
-        f"Otimizada com queda máxima de {pct(cfg_resultado.get('queda_max_receita', 5), 0)} "
-        f"· {len(resultado['ajustes'])} segmento(s) ajustado(s) pela restrição",
+        "A melhor política",
+        f"Queda máxima de {pct(cfg_resultado.get('queda_max_receita', 5), 0)} na receita "
+        f"· {ajustes_txt} "
+        "· "
+        + " · ".join(
+            f"{int(v)}× {int(t)}%"
+            for t, v in tabela["teto_recomendado_%"].value_counts().sort_index().items()
+        ),
     )
 
     o1, o2, o3, o4 = st.columns(4, gap="small")
@@ -177,13 +210,13 @@ else:
     with o4:
         metric(
             "Retorno por R$ evitado",
-            f"{roi:.1f}×".replace(".", ",") if roi else "—",
+            f"{roi:.2f}×".replace(".", ",") if roi else "—",
             "lucro adicional por real de desconto não concedido",
         )
 
     if d_lucro > 0:
         insight(
-            "Resultado da otimização",
+            "Por que esta é a melhor política",
             f"A política recomendada adiciona <strong>{brl(d_lucro)} ao lucro</strong> "
             f"({pct(d_lucro / base['lucro'] * 100, 1, True)}) e evita "
             f"<strong>{brl(abs(d_desconto))}</strong> em desconto. "

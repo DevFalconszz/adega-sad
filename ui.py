@@ -576,6 +576,73 @@ pre, code, .stCode { border-radius: 10px !important; font-family: ui-monospace, 
 }
 .micro-label { color: var(--faint); font-size: 0.61rem; font-weight: 650; letter-spacing: 0.11em; text-transform: uppercase; }
 
+/* ---------------- melhor política ---------------- */
+.policy-hero {
+    background: radial-gradient(125% 165% at 100% 0%, #1B6C4D 0%, #0E5A3A 55%, #0A4530 100%);
+    border-radius: 16px;
+    padding: 1.5rem 1.7rem 1.25rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 1.4rem 2.2rem;
+    color: #F7F5F0;
+    margin: 0 0 0.9rem;
+}
+.policy-kicker {
+    color: rgba(247, 245, 240, 0.66);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.55rem;
+}
+.policy-value {
+    font-family: var(--serif);
+    font-size: clamp(2.3rem, 4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: #FFFDF8;
+}
+.policy-delta {
+    color: rgba(247, 245, 240, 0.84);
+    font-size: 0.8rem;
+    margin-top: 0.55rem;
+    line-height: 1.55;
+    max-width: 400px;
+}
+.policy-delta strong { color: #FFFDF8; font-weight: 650; }
+.policy-facts {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 1.5rem;
+}
+.policy-fact { border-left: 1px solid rgba(247, 245, 240, 0.18); padding-left: 1rem; }
+.policy-fact-label {
+    color: rgba(247, 245, 240, 0.58);
+    font-size: 0.58rem;
+    font-weight: 650;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin-bottom: 0.32rem;
+}
+.policy-fact-value {
+    color: #FFFDF8;
+    font-size: 1.02rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.policy-note {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(247, 245, 240, 0.14);
+    padding-top: 0.8rem;
+    font-size: 0.72rem;
+    color: rgba(247, 245, 240, 0.64);
+    line-height: 1.55;
+}
+.policy-note b { color: rgba(247, 245, 240, 0.92); font-weight: 600; }
+
 /* ---------------- passos ---------------- */
 .step-grid { display: flex; gap: 2rem; }
 .step { flex: 1; }
@@ -600,6 +667,8 @@ img { max-width: 100%; }
     .page-meta { gap: 1.4rem; }
     .stat-strip { flex-wrap: wrap; }
     .stat-cell { flex: 1 1 50%; border-bottom: 1px solid var(--line-soft); }
+    .policy-hero { grid-template-columns: 1fr; }
+    .policy-facts { justify-content: flex-start; flex-wrap: wrap; gap: 1rem 1.4rem; }
     [data-testid="stHeaderLogo"] { width: 118px; }
     [data-testid="stTopNav"] { margin-right: 0.2rem; }
 }
@@ -697,6 +766,34 @@ def insight(title: str, body: str, tone: str = "neutral") -> None:
         <div class="insight{cls}">
             <div class="insight-title">{escape(title)}</div>
             <p>{body}</p>
+        </div>
+        """
+    )
+
+
+def policy_hero(
+    value: str,
+    delta_html: str,
+    facts: list[tuple[str, str]],
+    note_html: str,
+    title: str = "A melhor política",
+) -> None:
+    """Faixa de destaque com a recomendação do otimizador: o ponto do sistema."""
+    facts_html = "".join(
+        f"<div class='policy-fact'><div class='policy-fact-label'>{lbl}</div>"
+        f"<div class='policy-fact-value'>{val}</div></div>"
+        for lbl, val in facts
+    )
+    st.html(
+        f"""
+        <div class="policy-hero">
+            <div>
+                <div class="policy-kicker">{title}</div>
+                <div class="policy-value">{value}</div>
+                <div class="policy-delta">{delta_html}</div>
+            </div>
+            <div class="policy-facts">{facts_html}</div>
+            <div class="policy-note">{note_html}</div>
         </div>
         """
     )
