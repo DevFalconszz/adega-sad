@@ -17,6 +17,7 @@ from ui import (
     card_head,
     eixo_meses,
     get_df,
+    get_cfg,
     get_recomendacao,
     insight,
     mes_ano,
@@ -48,6 +49,8 @@ page_header(
 
 # ---------------------------------------------------------------- melhor política
 rec = get_recomendacao()
+cfg = get_cfg()
+regras_ativas = sum(1 for r in cfg.get("regras", []) if r.get("ativa", True))
 base = resumo(df)
 novo = resumo(df, rec["sim"])
 d_lucro = novo["lucro"] - base["lucro"]
@@ -67,8 +70,8 @@ policy_hero(
         ("Desconto", pct(d_desconto / base["abatido"] * 100, 1, True)),
         ("Tetos", tetos_txt),
     ],
-    "Calculada sobre as <b>7.522 vendas</b> com as <b>5 regras ativas</b> — inclusive as regras de estoque. "
-    "Ganho projetado pelo modelo, a validar em piloto.",
+    f"Calculada sobre as <b>{num(n)} vendas</b> com as <b>{regras_ativas} regras ativas</b> — "
+    "inclusive as regras de estoque. Ganho projetado pelo modelo, a validar em piloto.",
 )
 
 acao, nota = st.columns([1.05, 3.95], vertical_alignment="center")
